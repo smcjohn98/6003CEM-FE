@@ -3,7 +3,7 @@ import PetReducer from './PetReducer';
 
 const Store = configureStore({
   reducer: {
-    catlist: PetReducer,
+    petStore: PetReducer,
   },
 });
 

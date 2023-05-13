@@ -1,12 +1,17 @@
 import './App.css';
-import CatGrid from './component/CatGrid';
+import PetGrid from './component/PetGrid';
 import Header from './component/Header';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
     <div className="App">
-      <Header/>
-      <CatGrid/>
+      <Router>
+        <Header/>
+        <Routes>
+          <Route path="/" element={<PetGrid/>} />
+        </Routes>
+      </Router>
     </div>
   );
 }
