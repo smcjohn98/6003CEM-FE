@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
 
 export const NO_ACTION = -1;
 export const CREATE_ACTION = 1;
@@ -13,9 +15,18 @@ const initialState = {
       dob:"2023-04-27",
     }
   ],
+  searchCriteria:{
+
+  },
   loading: false,
   action: -1,
-  selectIndex: -1
+  selectIndex: -1,
+  fetchKey: 0,
+  token: localStorage.getItem('token') || null,
+  role: null,
+  userId: null,
+  username: null,
+  name: null
 };
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -66,12 +77,31 @@ export const PetSlice = createSlice({
       state.action = NO_ACTION
       state.selectIndex = -1
     },
+    setLoading: (state, action) => {
+      state.loading = action.payload
+    },
+    updateFetchKey: (state) => {
+      state.fetchKey += 1;
+    },
+    setToken: (state, action) => {
+      state.token = action.payload;
+    },
+    setUser: (state, action) => {
+      state.role = action.payload.role;
+      state.userId = action.payload.userId;
+      state.username = action.payload.username;
+      state.name = action.payload.name;
+    }
   },
 });
 
-export const { addPet, setPetList, clearPetList, setCreate, setEdit, setView, setNoAction, editPet} = PetSlice.actions;
+export const { addPet, setPetList, clearPetList, setCreate, setEdit, setView, setNoAction, editPet, setLoading, updateFetchKey, setToken, setUser} = PetSlice.actions;
 
 export const getPetList = (state) => state.petStore.list;
 export const getAction = (state) => state.petStore.action;
 export const getSelectIndex = (state) => state.petStore.selectIndex;
+export const getLoading = (state) => state.petStore.loading;
+export const getFetchKey = (state) => state.petStore.fetchKey;
+export const getToken = (state) => state.petStore.token;
+export const getUser = (state) => {return {role:state.petStore.role, userId:state.petStore.userId, username: state.petStore.username, name:state.petStore.name}};
 export default PetSlice.reducer;
