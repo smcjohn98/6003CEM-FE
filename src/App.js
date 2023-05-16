@@ -5,13 +5,11 @@ import SignupCode from './component/SignupCode';
 import Header from './component/Header';
 import SignUp from './component/SignUp';
 import User from './component/User';
-import { useEffect, useLayoutEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, redirect, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { getToken, setToken, setUser, getUser } from './redux/PetReducer';
+import { getToken, setToken, setUser, getUser, setLoading, getLoading } from './redux/PetReducer';
 import axios from 'axios';
-
-let finish = false;
 
 function App() {
   const token = useSelector(getToken);
@@ -20,12 +18,13 @@ function App() {
   useEffect(() => {
     //console.log(token);
     if(token){
+      dispatch(setLoading(true))
       axios.defaults.headers.common['Authorization'] = "Bearer "+ token;
       axios.get('/user/verify').then((response)=>{
         //console.log(response.data);
         const { role, userId, username, name } = response.data.data
         dispatch(setUser({role:role, userId:userId, username:username, name:name}));
-        finish = true;
+        dispatch(setLoading(false))
       })
       .catch((error) => {
         localStorage.removeItem('token');
@@ -36,6 +35,7 @@ function App() {
     else{
       delete axios.defaults.headers.common['Authorization'];
       dispatch(setUser({}));
+      dispatch(setLoading(false))
     }
   }, [token]);
 
@@ -67,6 +67,7 @@ function App() {
 const PrivateRoute = ({children, role}) => {
   
   const user = useSelector(getUser);
+  const loading = useSelector(getLoading);
   let auth = false;
 
   for(let i=0; i<role.length; i++){
@@ -76,7 +77,7 @@ const PrivateRoute = ({children, role}) => {
       break;
     }
   }
-  if(!finish)
+  if(loading)
     return <></>
 
   if(!auth){

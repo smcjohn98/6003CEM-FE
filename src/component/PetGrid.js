@@ -4,28 +4,28 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { formatDistanceToNow, differenceInYears } from 'date-fns';
+import { PetBreed } from '../function/Constrant';
 import PetModal from './PetModal';
 import axios from 'axios';
-
+import { FormControl, Select, MenuItem, Checkbox } from '@mui/material';
 import FavoriteOutlined from '@mui/icons-material/FavoriteOutlined';
 
 import {
-  addPet,
   setPetList,
-  clearPetList,
   getPetList,
   getAction,
-  setLoading,
-  setCreate, setEdit, setView, setNoAction,
+  setCreate, 
+  setEdit, 
+  setView,
   getFetchKey,
   getUser,
+  getLoading,
   updateFetchKey
 } from '../redux/PetReducer';
 import { TextField } from '@mui/material';
@@ -33,22 +33,45 @@ import { TextField } from '@mui/material';
 export default function PetGrid() {
   const petList = useSelector(getPetList);
   const action = useSelector(getAction);
+  const loading = useSelector(getLoading);
   const fetchKey = useSelector(getFetchKey);
+  
   const user = useSelector(getUser);
+  const [searchCriteria, setSearchCriteria] = useState({name:"", breed:"", sex:"", fav:false});
   const dispatch = useDispatch();
   
-  useEffect(() => {
-    dispatch(setLoading(true));
-    axios.get('/pet')
-    .then(function (response) {
+  useEffect(() => { 
+    if(!loading){
+      axios.get('/pet', {params: {...searchCriteria, userId: user.userId} })
+      .then(function (response) {
+        console.log(response.data.data.pet);
+        dispatch(setPetList(response.data.data.pet));
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    }
+  }, [fetchKey, loading]);
+
+  const handleAddToFavourite = (petId) => {
+    axios.post(`/watchlist`, {userId:user.userId, petId:petId}).then((response)=>{
       console.log(response.data);
-      dispatch(setPetList(response.data.data.pet));
-      dispatch(setLoading(false));
+      dispatch(updateFetchKey());
     })
-    .catch(error => {
-      console.error(error);
-    });
-  }, [fetchKey]);
+    .catch((error) => { 
+      console.log(error);
+    })
+  }
+
+  const handleRemoveFromFavourite = (id) => {
+    axios.delete(`/watchlist/${id}`).then((response)=>{
+      console.log(response.data);
+      dispatch(updateFetchKey());
+    })
+    .catch((error) => { 
+      console.log(error);
+    })
+  }
 
   const handleDelete = (id) => {
     axios.delete(`/pet/${id}`).then((response)=>{
@@ -82,20 +105,60 @@ export default function PetGrid() {
             >
               Pet Adaption
             </Typography>
-            <TextField sx={{width:'100%'}}> Name </TextField>
+          
             <Typography variant="h5" align="center" color="text.secondary" paragraph>
-              Something short and leading about the collection below—its contents,
-              the creator, etc. Make it short and sweet, but not too short so folks
-              don&apos;t simply skip over it entirely.
+            Name: <TextField  sx={{ mr:3, width:"20%"}} size="small" value={searchCriteria.name} onChange={(e)=>{setSearchCriteria({...searchCriteria, name:e.target.value}) }}/>
+            Breed:
+            <FormControl sx={{ mr:3, minWidth: "25%" }} size="small">
+              <Select
+                displayEmpty
+                inputProps={{ 'aria-label': 'Without label' }}
+                value={searchCriteria.breed}
+                onChange={(e)=>setSearchCriteria({...searchCriteria, breed:e.target.value})}
+              >
+                <MenuItem value={""}>All Breeds</MenuItem>
+                {
+                  Object.keys(PetBreed).map((key) => {
+                    return (
+                      <MenuItem value={key}>{PetBreed[key]}</MenuItem>
+                    )
+                  })
+                }
+              </Select>
+            </FormControl>
+            Sex:
+            <FormControl sx={{ minWidth: "15%" }} size="small">
+              <Select
+                displayEmpty
+                inputProps={{ 'aria-label': 'Without label' }}
+                value={searchCriteria.sex}
+                onChange={(e)=>setSearchCriteria({...searchCriteria, sex:e.target.value})}
+              >
+                <MenuItem value={""}>All</MenuItem>
+                <MenuItem value={"F"}>Female</MenuItem>
+                <MenuItem value={"M"}>Male</MenuItem>
+              </Select>
+            </FormControl>
+            
+
+            Favourite: <Checkbox value={searchCriteria.fav} onChange={(e)=>setSearchCriteria({...searchCriteria, fav:e.target.checked})}/>
+            </Typography>
+
+            
+
+           
+            <Typography variant="h5" align="center" color="text.secondary" paragraph>
+              
             </Typography>
             { user && (user.role === "admin" || user.role === "charity") &&
             <Button variant="contained" onClick={()=>{dispatch(setCreate())}} sx={{mr:2}}>Add</Button> }
+            <Button variant="contained" onClick={()=>{dispatch(updateFetchKey())}} sx={{mr:2}}>Search</Button>
           </Container>
         </Box>
         <Container sx={{ py: 8 }} maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {petList.map((pet,key) => (
+            { petList && petList.map((pet,key) => (
               <Grid item key={pet.id} xs={12} sm={6} md={4}>
                 <Card
                   sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
@@ -109,10 +172,19 @@ export default function PetGrid() {
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography gutterBottom variant="h5" >
                       {pet.name}
-                      <FavoriteOutlined sx={{ml:2, cursor:"pointer"}} />
+                      {user.userId &&
+                        (
+                          pet.watchlists && pet.watchlists.length ? 
+                          <FavoriteOutlined color="error" onClick={()=>handleRemoveFromFavourite(pet.watchlists[0].id)} sx={{ml:2, cursor:"pointer"}} /> :
+                          <FavoriteOutlined onClick={()=>handleAddToFavourite(pet.id)} sx={{ml:2, cursor:"pointer"}} />
+                        )
+                      }
                     </Typography>
                     <Typography >
-                      Breed : {pet.breed}
+                      Breed : {PetBreed[pet.breed]}
+                    </Typography>
+                    <Typography >
+                      Sex : {pet.sex === 'F' ? 'Female' : 'Male'}
                     </Typography>
                     <Typography>
                       {

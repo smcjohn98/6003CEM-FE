@@ -14,6 +14,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import ImageUploading from 'react-images-uploading';
+import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { PetBreed } from '../function/Constrant';
 import axios from 'axios';
 import {
   addPet,
@@ -28,6 +30,8 @@ import {
 export default function PetModal(props) {
   const [petName, setPetName] = useState("");
   const [petDob, setPetDob] = useState(dayjs(new Date().toLocaleString()));
+  const [petBreed, setPetBreed] = useState("DSH");
+  const [petSex, setPetSex] = useState("M");
   const [error, setError] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -43,6 +47,8 @@ export default function PetModal(props) {
     setThumbnail(null);
     setPreview(null);
     setError(false);
+    setPetBreed('DSH');
+    setPetSex('M');
   };
 
   const handleUpdate = (event) => {
@@ -58,8 +64,9 @@ export default function PetModal(props) {
     formData.append('name', petName);
     formData.append('dob', petDob.format('YYYY-MM-DD'));
     formData.append('type', 'cat');
-    formData.append('breed', 'DSH');
+    formData.append('breed', petBreed);
     formData.append('image', thumbnail);
+    formData.append('sex', petSex);
 
     const id = petList[selectIndex].id;
     /*const pet = {id: id, name: petName, dob: petDob.format('YYYY-MM-DD'), type:'cat', breed:'DSH'};
@@ -91,8 +98,9 @@ export default function PetModal(props) {
     formData.append('name', petName);
     formData.append('dob', petDob.format('YYYY-MM-DD'));
     formData.append('type', 'cat');
-    formData.append('breed', 'DSH');
+    formData.append('breed', petBreed);
     formData.append('image', thumbnail);
+    formData.append('sex', petSex);
 
     //const pet = {name: petName, dob: petDob.format('YYYY-MM-DD'), type:'cat', breed:'DSH'};
     axios.post('/pet', formData, {headers: {'Content-Type': 'multipart/form-data'}}).then((response)=>{
@@ -116,6 +124,8 @@ export default function PetModal(props) {
     if(props.action === EDIT_ACTION || props.action === VIEW_ACTION){
       setPetName(petList[selectIndex].name)
       setPetDob(dayjs(petList[selectIndex].dob))
+      setPetSex(petList[selectIndex].sex)
+      setPetBreed(petList[selectIndex].breed)
       if(petList[selectIndex].thumbnail){
         setThumbnail(petList[selectIndex].thumbnail)
         setPreview("http://localhost:5000/images/"+petList[selectIndex].thumbnail)
@@ -139,7 +149,7 @@ export default function PetModal(props) {
           thumbnail && <img style={{maxWidth:"100%"}} src={"http://localhost:5000/images/"+petList[selectIndex].thumbnail}/> : 
           
           <Button variant="contained" component="label">
-            Upload Thumbnail
+            Upload Image
             <input onChange={handleFileChange} hidden accept="image/*" type="file" />
           </Button>
 
@@ -158,17 +168,54 @@ export default function PetModal(props) {
           InputProps={{
             readOnly: props.action === VIEW_ACTION,
           }}
+          sx={{mb:3}}
           onChange={(e) => setPetName(e.target.value)}
         />
+        <FormControl sx={{ minWidth: "40%" }}>
+          <InputLabel id="demo-simple-select-label">Breed</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            label="Breed"
+            value={petBreed}
+            onChange={(e)=>setPetBreed(e.target.value)}
+            disabled={props.action === VIEW_ACTION}
+          >
+            {
+              Object.keys(PetBreed).map((key) => {
+                return (
+                  <MenuItem value={key}>{PetBreed[key]}</MenuItem>
+                )
+              })
+            }
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: "40%", ml:2 }}>
+          <InputLabel id="demo-simple-select-label">Sex</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            label="Sex"
+            value={petSex}
+            onChange={(e)=>setPetSex(e.target.value)}
+            disabled={props.action === VIEW_ACTION}
+          >
+            <MenuItem value={'M'}>Male</MenuItem>
+            <MenuItem value={'F'}>Female</MenuItem>
+          </Select>
+        </FormControl>
+
         { props.action === EDIT_ACTION || props.action === CREATE_ACTION ?
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={['DatePicker', 'DatePicker']}>
+            <DemoContainer components={['DatePicker', 'DatePicker']} >
               <DatePicker
               label="Date of birth"
               value={petDob}
               onChange={(newValue) => setPetDob(newValue)}
               readOnly={props.action === VIEW_ACTION}
               format="YYYY-MM-DD"
+              
               />
             </DemoContainer>
           </LocalizationProvider> 

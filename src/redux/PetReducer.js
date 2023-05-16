@@ -1,6 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
 
 export const NO_ACTION = -1;
 export const CREATE_ACTION = 1;
@@ -18,7 +16,7 @@ const initialState = {
   searchCriteria:{
 
   },
-  loading: false,
+  loading: true,
   action: -1,
   selectIndex: -1,
   fetchKey: 0,
