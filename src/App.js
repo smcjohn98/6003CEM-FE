@@ -1,5 +1,6 @@
 import './App.css';
 import PetGrid from './component/PetGrid';
+import PetDetail from './component/PetDetail';
 import Login from './component/Login';
 import SignupCode from './component/SignupCode';
 import Header from './component/Header';
@@ -47,6 +48,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PetGrid/>} />
           <Route path="/signup" element={<SignUp/>} />
+          <Route path="/pet/:id" element={<PetDetail/>} />
           <Route path="/signup-code" element={
             <PrivateRoute role={['admin']}>
               <SignupCode/>

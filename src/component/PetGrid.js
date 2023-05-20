@@ -29,6 +29,7 @@ import {
   updateFetchKey
 } from '../redux/PetReducer';
 import { TextField } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 export default function PetGrid() {
   const petList = useSelector(getPetList);
@@ -42,7 +43,7 @@ export default function PetGrid() {
   
   useEffect(() => { 
     if(!loading){
-      axios.get('/pet', {params: {...searchCriteria, userId: user.userId} })
+      axios.get('/pet', {params: {...searchCriteria} })
       .then(function (response) {
         console.log(response.data.data.pet);
         dispatch(setPetList(response.data.data.pet));
@@ -141,7 +142,12 @@ export default function PetGrid() {
             </FormControl>
             
 
-            Favourite: <Checkbox value={searchCriteria.fav} onChange={(e)=>setSearchCriteria({...searchCriteria, fav:e.target.checked})}/>
+            { user.userId &&
+              <span>
+                Favourite:
+                <Checkbox value={searchCriteria.fav} onChange={(e)=>setSearchCriteria({...searchCriteria, fav:e.target.checked})}/> 
+              </span>
+            }
             </Typography>
 
             
@@ -155,7 +161,7 @@ export default function PetGrid() {
             <Button variant="contained" onClick={()=>{dispatch(updateFetchKey())}} sx={{mr:2}}>Search</Button>
           </Container>
         </Box>
-        <Container sx={{ py: 8 }} maxWidth="md">
+        <Container sx={{ py: 8 }} maxWidth="lg">
           {/* End hero unit */}
           <Grid container spacing={4}>
             { petList && petList.map((pet,key) => (
@@ -201,7 +207,10 @@ export default function PetGrid() {
                     </Typography>
                   </CardContent>
                   <CardActions style={{margin:'auto'}}>
-                    <Button variant="contained" size="small" onClick={()=>{dispatch(setView(key))}}>View</Button>
+                    
+                    <Link to={`/pet/${pet.id}`}>
+                      <Button sx={{mr:1}} variant="contained" size="small">View</Button>
+                    </Link>
                     { user && (user.role === "admin" || user.role === "charity") &&
                     <Button variant="contained" size="small" onClick={()=>{dispatch(setEdit(key))}}>Edit</Button> }
 
