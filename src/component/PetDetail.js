@@ -51,6 +51,12 @@ export default function PetDetail(props) {
     })
   }
 
+  const enquiryPet = () => {
+    localStorage.setItem('enquiryUserId', pet.createdBy);
+    localStorage.setItem('enquiryPetName', pet.name);
+    window.location.href = "/chat";
+  }
+
   return (
     <>
       <Box sx={{width:'100%', bgcolor: '#cfe8fc', textAlign:"center"}}>
@@ -100,7 +106,13 @@ export default function PetDetail(props) {
                 <Typography sx={{ fontSize: 20 }} color="text.primary" gutterBottom>
                   Considering {pet.name} for adoption?
                 </Typography>
-                <Button variant="contained" fullWidth={true} sx={{mb:2, borderRadius:10}}>Contact Us</Button> 
+                {
+                  user.userId ?
+                  <Button variant="contained" fullWidth={true} sx={{mb:2, borderRadius:10}} onClick={enquiryPet}>Contact Us</Button> :
+                  <Typography sx={{ fontSize: 20 }} color="text.primary" gutterBottom>
+                    Login to enquiry us.
+                  </Typography>
+                }
               </CardContent>
             </Card>
           </Grid>

@@ -6,6 +6,7 @@ import SignupCode from './component/SignupCode';
 import Header from './component/Header';
 import SignUp from './component/SignUp';
 import User from './component/User';
+import Chat from './component/Chat';
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -26,6 +27,7 @@ function App() {
         const { role, userId, username, name } = response.data.data
         dispatch(setUser({role:role, userId:userId, username:username, name:name}));
         dispatch(setLoading(false))
+        console.log(response.data);
       })
       .catch((error) => {
         localStorage.removeItem('token');
@@ -49,6 +51,10 @@ function App() {
           <Route path="/" element={<PetGrid/>} />
           <Route path="/signup" element={<SignUp/>} />
           <Route path="/pet/:id" element={<PetDetail/>} />
+          <Route path="/chat" element={
+            <PrivateRoute role={['admin', 'charity', 'user']}>
+              <Chat/>
+            </PrivateRoute>}/>
           <Route path="/signup-code" element={
             <PrivateRoute role={['admin']}>
               <SignupCode/>

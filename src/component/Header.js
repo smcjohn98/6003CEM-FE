@@ -40,6 +40,14 @@ export default function Header() {
           <Link to="/" style={{ textDecoration: 'none', color: 'White' }}>
             <Button color="inherit">View Pet</Button>
           </Link>
+          { user && user.role && 
+            <>
+              <Divider orientation="vertical" flexItem />
+              <Link to="/chat" style={{ textDecoration: 'none', color: 'White' }}>
+                <Button color="inherit">Chat</Button>
+              </Link>
+            </>
+          }
           { user && user.role === "admin" &&
             <>
               <Divider orientation="vertical" flexItem />
@@ -66,7 +74,8 @@ export default function Header() {
                 <Button color="inherit" onClick={handleLogout}>Logout</Button>
               </Link>
           }
-          <Typography sx={{textAlign:"right"}} variant="h6" component="div" >Hi, {user.name}</Typography>
+          <Typography sx={{flexGrow:1}} variant="h6" component="div" />
+          <Typography variant="h6" component="div" >Hi, {user.name}</Typography>
         </Toolbar>
       </AppBar>
     </Box>
