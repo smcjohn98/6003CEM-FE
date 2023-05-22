@@ -8,6 +8,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import React, { useState, useEffect } from 'react';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 import { useSelector, useDispatch } from 'react-redux';
 import { formatDistanceToNow, differenceInYears } from 'date-fns';
 import { PetBreed } from '../function/Constrant';
@@ -32,6 +34,8 @@ import { TextField } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 export default function PetGrid() {
+  const [offset, setOffset] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const petList = useSelector(getPetList);
   const action = useSelector(getAction);
   const loading = useSelector(getLoading);
@@ -43,9 +47,10 @@ export default function PetGrid() {
   
   useEffect(() => { 
     if(!loading){
-      axios.get('/pet', {params: {...searchCriteria} })
+      axios.get('/pet', {params: {...searchCriteria, offset:offset} })
       .then(function (response) {
         console.log(response.data.data.pet);
+        setTotalCount(response.data.data.count)
         dispatch(setPetList(response.data.data.pet));
       })
       .catch(error => {
@@ -63,6 +68,11 @@ export default function PetGrid() {
       console.log(error);
     })
   }
+
+  const handlePage = (event, value) => {
+    setOffset((value-1) * 12);
+    dispatch(updateFetchKey());
+  };
 
   const handleRemoveFromFavourite = (id) => {
     axios.delete(`/watchlist/${id}`).then((response)=>{
@@ -88,7 +98,6 @@ export default function PetGrid() {
     <>
       { action && <PetModal action={action} key={1}/>}
       <main>
-        
         <Box
           sx={{
             bgcolor: '#cfe8fc',
@@ -222,6 +231,9 @@ export default function PetGrid() {
               </Grid>
             ))}
           </Grid>
+          <Stack alignItems="center" sx={{mt:3}}>
+              <Pagination onChange={handlePage} count={Math.ceil(totalCount/12)} color='primary' />
+          </Stack>
         </Container>
       </main>
       {/* Footer */}
