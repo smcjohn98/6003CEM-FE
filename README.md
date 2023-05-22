@@ -17,3 +17,6 @@
 | Delete Chat | Charity, Admin |
 | View all user | Admin |
 | Delete User | Admin |
+
+![alt text](https://github.com/smcjohn98/6003CEM-FE/blob/main/mainpage.jfif?raw=true)
+
