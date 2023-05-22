@@ -1,11 +1,12 @@
 import React from 'react';
-import { List, ListItem, ListItemIcon, ListItemText, Avatar, Fab, Divider, TextField, Typography, Grid, Paper } from '@mui/material';
+import { List, ListItem, ListItemIcon, ListItemText, Avatar, Fab, Divider, TextField, Typography, Grid, Paper, Checkbox } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import axios from 'axios';
 import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { getLoading, getUser } from '../redux/PetReducer';
 import { formatDistanceToNow, differenceInYears } from 'date-fns';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const stringToColor = (string) => {
   let hash = 0;
@@ -105,6 +106,16 @@ export default function Chat() {
     }
   }
 
+  const deleteChat = (id) => {
+    axios.delete(`/chat/${id}`)
+    .then(function (response) {
+      setChatFetchKey(chatFetchKey+1);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }
+
   const keyPress = (e) => {
     if(e.keyCode == 13){
       sendChat()
@@ -156,8 +167,12 @@ export default function Chat() {
                         <ListItem key={key}>
                           <Grid container>
                               <Grid item xs={12}>
-                                  <ListItemText align={c.user_from===user.userId ? 'right' : 'left'} primary={c.message}></ListItemText>
-                                  <ListItemText align={c.user_from===user.userId ? 'right' : 'left'} secondary={formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}></ListItemText>
+                                  <ListItemText align={c.user_from===user.userId ? 'right' : 'left'} primary={c.message} secondary={formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}></ListItemText>
+                                  {
+                                    (user.role === 'admin' || user.role === 'charity') &&
+                                    <ListItemText sx={{cursor:'pointer'}} align={c.user_from===user.userId ? 'right' : 'left'} onClick={(e)=>{deleteChat(c.id)}}
+                                    primary={<Typography variant="body2" style={{ color: 'red', fontSize: 12 }}>Delete</Typography>}></ListItemText>
+                                  }
                               </Grid>
                           </Grid>
                       </ListItem>
@@ -168,7 +183,7 @@ export default function Chat() {
                 <Divider />
                 <Grid container style={{padding: '20px'}}>
                     <Grid item xs={11}>
-                        <TextField onKeyDown={keyPress} id="outlined-basic-email" label="Type Something" value={inputMessage} onChange={(e)=>{setInputMessage(e.target.value)}} fullWidth />
+                        <TextField onKeyDown={keyPress} id="outlined-basic-email" label="Message" disabled={!chatUser.userId} value={inputMessage} onChange={(e)=>{setInputMessage(e.target.value)}} fullWidth />
                     </Grid>
                     <Grid xs={1} align="right">
                         <Fab color="primary" aria-label="add" onClick={sendChat}><SendIcon/></Fab>
