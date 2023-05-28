@@ -6,6 +6,7 @@ import Store from './redux/Store';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux'
 import axios from 'axios';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 //axios.defaults.headers.common['Authorization'] = 'AUTH TOKEN';
@@ -33,7 +34,9 @@ axios.interceptors.response.use(response => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={Store}>
-    <App />  
+    <GoogleOAuthProvider clientId="386098779877-3jsirm35gteoq3dg0ookol528ppobe2c.apps.googleusercontent.com">
+      <App />  
+    </GoogleOAuthProvider>
   </Provider>
 );
 

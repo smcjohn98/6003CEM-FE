@@ -39,7 +39,7 @@ const columns = [
     width: 150,
   },
   {
-    field: 'is_valid',
+    field: 'isValid',
     headerName: 'Valid',
     type: 'boolean',
     editable: true,

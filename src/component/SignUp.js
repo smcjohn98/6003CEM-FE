@@ -20,6 +20,9 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [isCharity, setCharity] = useState(false);
+  const [location, setLocation] = useState("");
+  const [phone, setPhone] = useState("");
+  const [charityName, setCharityName] = useState("");
   const [signupCode, setSignupCode] = useState("");
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -30,8 +33,9 @@ export default function SignUp() {
   }
   
   const handleSignUp = () => {
-    if(!name || !username || !password || !passwordConfirmation || (isCharity && !signupCode)){
+    if(!name || !username || !password || !passwordConfirmation || (isCharity && (!signupCode || !location || !phone || !charityName))){
       setError(true);
+      return;
     }
 
     if(!validateEmail()){
@@ -51,10 +55,12 @@ export default function SignUp() {
     }
 
 
-    var obj = {name:name, username:username, password:password}
+    var obj = {name:name, username:username, password:password, isCharity:isCharity}
     if(isCharity){
       obj.signupCode = signupCode
-      obj.isCharity = true
+      obj.location = location
+      obj.phone = phone
+      obj.charityName = charityName
     }
 
     axios.post("/user", obj).then(response => {
@@ -140,17 +146,54 @@ export default function SignUp() {
                   label="Have Sign Up Code? Register As A Charity"
                 />
               </Grid>
-              { isCharity && <Grid item xs={12}>
-                    <TextField
-                      error={error && !signupCode}
-                      required
-                      fullWidth
-                      label="SignUp Code"
-                      value={signupCode}
-                      onChange={(e)=>setSignupCode(e.target.value)}
-                    />
-                  </Grid>
-                }
+              { isCharity && 
+                <Grid item xs={12}>
+                  <TextField
+                    error={error && !signupCode}
+                    required
+                    fullWidth
+                    label="SignUp Code"
+                    value={signupCode}
+                    onChange={(e)=>setSignupCode(e.target.value)}
+                  />
+                </Grid>
+              }
+              { isCharity && 
+                <Grid item xs={12}>
+                  <TextField
+                    error={error && !charityName}
+                    required
+                    fullWidth
+                    label="Charity Name"
+                    value={charityName}
+                    onChange={(e)=>setCharityName(e.target.value)}
+                  />
+                </Grid>
+              }
+              { isCharity && 
+                <Grid item xs={12}>
+                  <TextField
+                    error={error && !location}
+                    required
+                    fullWidth
+                    label="Location"
+                    value={location}
+                    onChange={(e)=>setLocation(e.target.value)}
+                  />
+                </Grid>
+              }
+              { isCharity && 
+                <Grid item xs={12}>
+                  <TextField
+                    error={error && !phone}
+                    required
+                    fullWidth
+                    label="Phone"
+                    value={phone}
+                    onChange={(e)=>setPhone(e.target.value)}
+                  />
+                </Grid>
+              }
             </Grid>
             { errorMessage &&
             <Alert severity={error?"error":"success"}>{errorMessage}</Alert> }

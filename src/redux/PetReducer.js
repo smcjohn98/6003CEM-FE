@@ -5,14 +5,7 @@ export const CREATE_ACTION = 1;
 export const EDIT_ACTION = 2;
 export const VIEW_ACTION = 3;
 const initialState = {
-  list: [
-    {
-      id:1,
-      name:"Peanut",
-      type:"cat",
-      dob:"2023-04-27",
-    }
-  ],
+  list: [],
   searchCriteria:{
 
   },

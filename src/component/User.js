@@ -38,7 +38,7 @@ const columns = [
   {
     field: 'username',
     headerName: 'Username',
-    width: 300,
+    width: 200,
   },
   {
     field: 'name',
@@ -51,9 +51,24 @@ const columns = [
     width: 80,
   },
   {
-    field: 'signup_code',
+    field: 'signupCode',
     headerName: 'Sign Up Code',
     width: 150,
+  },
+  {
+    field: 'charityName',
+    headerName: 'Charity Name',
+    width: 300,
+  },
+  {
+    field: 'phone',
+    headerName: 'Phone',
+    width: 150,
+  },
+  {
+    field: 'location',
+    headerName: 'Location',
+    width: 300,
   },
   {
     field: 'createdAt',
@@ -63,7 +78,7 @@ const columns = [
   {
       field: 'action',
       headerName: 'Action',
-      width: 300,
+      width: 100,
       renderCell: renderActionButton,
       disableClickEventBubbling: true,
   },

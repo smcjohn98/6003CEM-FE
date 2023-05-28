@@ -32,6 +32,7 @@ import {
 } from '../redux/PetReducer';
 import { TextField } from '@mui/material';
 import { Link } from 'react-router-dom';
+import Footer from './Footer';
 
 export default function PetGrid() {
   const [offset, setOffset] = useState(0);
@@ -42,7 +43,7 @@ export default function PetGrid() {
   const fetchKey = useSelector(getFetchKey);
   
   const user = useSelector(getUser);
-  const [searchCriteria, setSearchCriteria] = useState({name:"", breed:"", sex:"", fav:false});
+  const [searchCriteria, setSearchCriteria] = useState({name:"", breed:"", sex:"", fav:false, own:false});
   const dispatch = useDispatch();
   
   useEffect(() => { 
@@ -155,7 +156,10 @@ export default function PetGrid() {
               <span>
                 Favourite:
                 <Checkbox value={searchCriteria.fav} onChange={(e)=>setSearchCriteria({...searchCriteria, fav:e.target.checked})}/> 
+                Owned by me:
+                <Checkbox value={searchCriteria.own} onChange={(e)=>setSearchCriteria({...searchCriteria, own:e.target.checked})}/> 
               </span>
+
             }
             </Typography>
 
@@ -180,6 +184,7 @@ export default function PetGrid() {
                 >
                   <CardMedia
                     component="img"
+                    sx={{width:"100%", height: "300px"}}
                     image={pet.thumbnail?`http://localhost:5000/images/${pet.thumbnail}`:"/default.jpg"}
                     alt="random"
                   />
@@ -220,10 +225,10 @@ export default function PetGrid() {
                     <Link to={`/pet/${pet.id}`}>
                       <Button sx={{mr:1}} variant="contained" size="small">View</Button>
                     </Link>
-                    { user && (user.role === "admin" || user.role === "charity") &&
+                    { user && (user.role === "admin" || (user.role === "charity" && pet.createdBy === user.userId)) &&
                     <Button variant="contained" size="small" onClick={()=>{dispatch(setEdit(key))}}>Edit</Button> }
 
-                    { user && (user.role === "admin" || user.role === "charity") &&
+                    { user && (user.role === "admin" || (user.role === "charity" && pet.createdBy === user.userId)) &&
                     <Button variant="contained" color="error" size="small" onClick={()=>handleDelete(pet.id)}>Delete</Button> }
 
                   </CardActions>
@@ -231,23 +236,15 @@ export default function PetGrid() {
               </Grid>
             ))}
           </Grid>
-          <Stack alignItems="center" sx={{mt:3}}>
+          {
+            petList.length > 12 &&
+            <Stack alignItems="center" sx={{mt:3}}>
               <Pagination onChange={handlePage} count={Math.ceil(totalCount/12)} color='primary' />
           </Stack>
+          }
+          <Footer/>
         </Container>
       </main>
-      {/* Footer */}
-      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-        <Typography
-          variant="subtitle1"
-          align="center"
-          color="text.secondary"
-          component="p"
-        >
-          227020426 - Suen Man Chun
-        </Typography>
-      </Box>
-      {/* End footer */}
     </>
   );
 }

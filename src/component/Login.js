@@ -12,6 +12,8 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import axios from 'axios';
 import { getToken } from '../redux/PetReducer';
+import { GoogleLogin } from '@react-oauth/google';
+import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import { useSelector } from 'react-redux';
 
 export default function Login() {
@@ -19,8 +21,43 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [ user, setUser ] = useState([]);
+  const [ profile, setProfile ] = useState([]);
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const token = useSelector(getToken);
+
+
+  const login = useGoogleLogin({
+      onSuccess: (codeResponse) => setUser(codeResponse),
+      onError: (error) => console.log('Login Failed:', error)
+  });
+  const responseMessage = (response) => {
+    console.log(response);
+  };
+  const responseError = (error) => {
+      console.log(error);
+  };
+
+  useEffect(
+    () => {
+      console.log(user)
+        if (user) {
+            axios
+                .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
+                    headers: {
+                        Authorization: `Bearer ${user.access_token}`,
+                        Accept: 'application/json'
+                    }
+                })
+                .then((res) => {
+                    setProfile(res.data);
+                    console.log(res.data)
+                })
+                .catch((err) => console.log(err));
+        }
+    },
+    [ user ]
+);
 
   useEffect(()=>{
     if(token){

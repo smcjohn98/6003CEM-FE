@@ -14,8 +14,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import ImageUploading from 'react-images-uploading';
-import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { Select, MenuItem, InputLabel, FormControl, Typography, Checkbox } from '@mui/material';
 import { PetBreed } from '../function/Constrant';
+import { EditorState, convertToRaw, ContentState } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs';
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import axios from 'axios';
 import {
   addPet,
@@ -25,13 +30,18 @@ import {
   setCreate, setEdit, setView, setNoAction, getSelectIndex,
   CREATE_ACTION, VIEW_ACTION, updateFetchKey
 } from '../redux/PetReducer';
-
+import "./pet.css"
 
 export default function PetModal(props) {
+  const html = '';
+  const contentBlock = htmlToDraft(html);
+  const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
   const [petName, setPetName] = useState("");
   const [petDob, setPetDob] = useState(dayjs(new Date().toLocaleString()));
-  const [petBreed, setPetBreed] = useState("DSH");
+  const [petBreed, setPetBreed] = useState("abys");
   const [petSex, setPetSex] = useState("M");
+  const [postTwitter, setPostTwitter] = useState(false);
+  const [description, setDescription] = useState(EditorState.createWithContent(contentState));
   const [error, setError] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -47,8 +57,9 @@ export default function PetModal(props) {
     setThumbnail(null);
     setPreview(null);
     setError(false);
-    setPetBreed('DSH');
+    setPetBreed('abys');
     setPetSex('M');
+    setPostTwitter(false);
   };
 
   const handleUpdate = (event) => {
@@ -67,6 +78,7 @@ export default function PetModal(props) {
     formData.append('breed', petBreed);
     formData.append('image', thumbnail);
     formData.append('sex', petSex);
+    formData.append('description', draftToHtml(convertToRaw(description.getCurrentContent())))
 
     const id = petList[selectIndex].id;
     /*const pet = {id: id, name: petName, dob: petDob.format('YYYY-MM-DD'), type:'cat', breed:'DSH'};
@@ -101,6 +113,8 @@ export default function PetModal(props) {
     formData.append('breed', petBreed);
     formData.append('image', thumbnail);
     formData.append('sex', petSex);
+    formData.append('postTwitter', postTwitter);
+    formData.append('description', draftToHtml(convertToRaw(description.getCurrentContent())))
 
     //const pet = {name: petName, dob: petDob.format('YYYY-MM-DD'), type:'cat', breed:'DSH'};
     axios.post('/pet', formData, {headers: {'Content-Type': 'multipart/form-data'}}).then((response)=>{
@@ -126,12 +140,20 @@ export default function PetModal(props) {
       setPetDob(dayjs(petList[selectIndex].dob))
       setPetSex(petList[selectIndex].sex)
       setPetBreed(petList[selectIndex].breed)
+      const a = htmlToDraft(petList[selectIndex].description);
+      const b = ContentState.createFromBlockArray(a.contentBlocks);
+      
+      setDescription(EditorState.createWithContent(b))
       if(petList[selectIndex].thumbnail){
         setThumbnail(petList[selectIndex].thumbnail)
         setPreview("http://localhost:5000/images/"+petList[selectIndex].thumbnail)
       }
     }
   }, [selectIndex, props.action]);
+
+  const onEditorStateChange = (editorState) => {
+    setDescription(editorState);
+  };
 
   return (
     <Dialog open={props.action > -1} fullWidth>
@@ -171,7 +193,7 @@ export default function PetModal(props) {
           sx={{mb:3}}
           onChange={(e) => setPetName(e.target.value)}
         />
-        <FormControl sx={{ minWidth: "40%" }}>
+        <FormControl fullWidth sx={{mb:2}}>
           <InputLabel id="demo-simple-select-label">Breed</InputLabel>
           <Select
             labelId="demo-simple-select-label"
@@ -191,7 +213,7 @@ export default function PetModal(props) {
           </Select>
         </FormControl>
 
-        <FormControl sx={{ minWidth: "40%", ml:2 }}>
+        <FormControl fullWidth sx={{mb:2}}>
           <InputLabel id="demo-simple-select-label">Sex</InputLabel>
           <Select
             labelId="demo-simple-select-label"
@@ -206,33 +228,30 @@ export default function PetModal(props) {
           </Select>
         </FormControl>
 
-        { props.action === EDIT_ACTION || props.action === CREATE_ACTION ?
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={['DatePicker', 'DatePicker']} >
-              <DatePicker
-              label="Date of birth"
-              value={petDob}
-              onChange={(newValue) => setPetDob(newValue)}
-              readOnly={props.action === VIEW_ACTION}
-              format="YYYY-MM-DD"
-              
-              />
-            </DemoContainer>
-          </LocalizationProvider> 
-          :
-            <TextField
-            error={error && !petName}
-            autoFocus
-            margin="dense"
-            id="name"
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DemoContainer components={['DatePicker', 'DatePicker']} >
+            <DatePicker
             label="Date of birth"
-            fullWidth
-            variant="standard"
-            value={petDob.format('YYYY-MM-DD')}
-            InputProps={{
-              readOnly: true
-            }}/>
-        }
+            value={petDob}
+            onChange={(newValue) => setPetDob(newValue)}
+            readOnly={props.action === VIEW_ACTION}
+            format="YYYY-MM-DD"
+            slotProps={{ textField: { fullWidth: true } }}
+            />
+          </DemoContainer>
+        </LocalizationProvider> 
+        
+        <Typography sx={{mt:2}} gutterBottom>Description</Typography>
+        <Editor
+          editorState={description}
+          toolbarClassName="toolbarClassName"
+          wrapperClassName="wrapperClassName"
+          editorClassName="editorClassName"
+          onEditorStateChange={onEditorStateChange}
+          placeholder='Write something'
+        />
+        Post Twitter: 
+        <Checkbox checked={postTwitter} onChange={(e)=>setPostTwitter(e.target.checked)}/> 
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>

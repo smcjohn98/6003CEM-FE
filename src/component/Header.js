@@ -40,6 +40,10 @@ export default function Header() {
           <Link to="/" style={{ textDecoration: 'none', color: 'White' }}>
             <Button color="inherit">View Pet</Button>
           </Link>
+          <Divider orientation="vertical" flexItem />
+          <Link to="/breed-helper" style={{ textDecoration: 'none', color: 'White' }}>
+            <Button color="inherit">Breed Helper</Button>
+          </Link>
           { user && user.role && 
             <>
               <Divider orientation="vertical" flexItem />

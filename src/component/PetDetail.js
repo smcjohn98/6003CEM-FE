@@ -54,9 +54,22 @@ export default function PetDetail(props) {
   const enquiryPet = () => {
     localStorage.setItem('enquiryUserId', pet.createdBy);
     localStorage.setItem('enquiryPetName', pet.name);
+    localStorage.setItem('enquiryPetCharityName', pet.user.name);
     window.location.href = "/chat";
   }
 
+  const renderAdaptionSection = (petUser) => {
+    if(!petUser)
+      return <Typography>Currently, {pet.name} is not available for adoption</Typography>
+
+    if(!user.userId) 
+      return <Typography sx={{ fontSize: 20 }} color="text.primary" gutterBottom>Login to enquiry us</Typography>
+
+    if(user.userId == petUser.id)
+      return <Typography>You are the owner</Typography>
+
+    return <Button variant="contained" fullWidth={true} sx={{mb:2, borderRadius:10}} onClick={enquiryPet}>Contact Us</Button>
+  }
   return (
     <>
       <Box sx={{width:'100%', bgcolor: '#cfe8fc', textAlign:"center"}}>
@@ -92,6 +105,15 @@ export default function PetDetail(props) {
                 <Typography sx={{ fontSize: 16 }} color="text.primary" gutterBottom>
                   Born on {pet.dob}
                 </Typography>
+                <Typography  gutterBottom>
+                  { 
+                    pet.description &&
+                    <>
+                      <hr/>
+                      <div dangerouslySetInnerHTML={{__html:pet.description}} />
+                    </>
+                  }
+                </Typography>
                 <Typography variant="caption" display="block" gutterBottom>
                   { pet.updatedAt &&
                     'Last updated :' + formatDistanceToNow(new Date(pet.updatedAt), { addSuffix: true })
@@ -101,20 +123,37 @@ export default function PetDetail(props) {
             </Card>
           </Grid>
           <Grid item xs={4} align="center">
-            <Card>
+            <Card sx={{mb:5}}>
               <CardContent>
                 <Typography sx={{ fontSize: 20 }} color="text.primary" gutterBottom>
                   Considering {pet.name} for adoption?
                 </Typography>
                 {
-                  user.userId ?
-                  <Button variant="contained" fullWidth={true} sx={{mb:2, borderRadius:10}} onClick={enquiryPet}>Contact Us</Button> :
-                  <Typography sx={{ fontSize: 20 }} color="text.primary" gutterBottom>
-                    Login to enquiry us.
-                  </Typography>
+                  renderAdaptionSection(pet.user)
                 }
               </CardContent>
             </Card>
+
+            { pet.user &&
+              <Card>
+                <CardContent>
+                  <Typography sx={{ fontSize: 16 }} color="text.primary" gutterBottom>
+                    Charity Name : {pet.user.charityName}
+                  </Typography>
+                  <Typography sx={{ fontSize: 16 }} color="text.primary" gutterBottom>
+                    Charity Email : {pet.user.username}
+                  </Typography>
+                  <Typography sx={{ fontSize: 16 }} color="text.primary" gutterBottom>
+                    Charity Location : {pet.user.location}
+                  </Typography>
+                  <Typography sx={{ fontSize: 16 }} color="text.primary" gutterBottom>
+                    Charity Phone : {pet.user.phone}
+                  </Typography>
+                  <Typography sx={{ fontSize: 16 }} color="text.primary" gutterBottom>
+                  </Typography>
+                </CardContent>
+              </Card>
+            }
           </Grid>
         </Grid>
       </Container>

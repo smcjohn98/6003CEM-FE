@@ -57,11 +57,13 @@ export default function Chat() {
   useEffect(() => { 
     const enquiryUserId = localStorage.getItem('enquiryUserId');
     const petName = localStorage.getItem('enquiryPetName');
+    const petCharityName = localStorage.getItem('enquiryPetCharityName');
     if(enquiryUserId, petName){
       setInputMessage(`Hi, I want to adopt ${petName}`);
-      setChatUser({userId: enquiryUserId, userName:"Enquiry Charity"})
+      setChatUser({userId: enquiryUserId, userName:petCharityName})
       localStorage.removeItem('enquiryUserId');
       localStorage.removeItem('enquiryPetName');
+      localStorage.removeItem('enquiryPetCharityName');
     }
   }, []);
 
@@ -167,10 +169,10 @@ export default function Chat() {
                         <ListItem key={key}>
                           <Grid container>
                               <Grid item xs={12}>
-                                  <ListItemText align={c.user_from===user.userId ? 'right' : 'left'} primary={c.message} secondary={formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}></ListItemText>
+                                  <ListItemText align={c.userFrom===user.userId ? 'right' : 'left'} primary={c.message} secondary={formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}></ListItemText>
                                   {
                                     (user.role === 'admin' || user.role === 'charity') &&
-                                    <ListItemText sx={{cursor:'pointer'}} align={c.user_from===user.userId ? 'right' : 'left'} onClick={(e)=>{deleteChat(c.id)}}
+                                    <ListItemText sx={{cursor:'pointer'}} align={c.userFrom===user.userId ? 'right' : 'left'} onClick={(e)=>{deleteChat(c.id)}}
                                     primary={<Typography variant="body2" style={{ color: 'red', fontSize: 12 }}>Delete</Typography>}></ListItemText>
                                   }
                               </Grid>

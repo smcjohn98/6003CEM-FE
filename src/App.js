@@ -7,6 +7,7 @@ import Header from './component/Header';
 import SignUp from './component/SignUp';
 import User from './component/User';
 import Chat from './component/Chat';
+import BreedHelper from './component/BreedHelper';
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -65,6 +66,7 @@ function App() {
             </PrivateRoute>}/>
 
           <Route path="/signup-code" element={<SignupCode/>} />
+          <Route path="/breed-helper" element={<BreedHelper/>} />
           <Route path="/login" element={<Login/>} />
         </Routes>
       </Router>
