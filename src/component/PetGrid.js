@@ -114,7 +114,7 @@ export default function PetGrid() {
               color="text.primary"
               gutterBottom
             >
-              Pet Adaption
+              Pet Adoption
             </Typography>
           
             <Typography variant="h5" align="center" color="text.secondary" paragraph>
@@ -237,7 +237,7 @@ export default function PetGrid() {
             ))}
           </Grid>
           {
-            petList.length > 12 &&
+            totalCount > 12 &&
             <Stack alignItems="center" sx={{mt:3}}>
               <Pagination onChange={handlePage} count={Math.ceil(totalCount/12)} color='primary' />
           </Stack>

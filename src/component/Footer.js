@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Footer = () => {
 
     return (
-        <Container>
+        <Container sx={{mt:10}}>
             <Grid
             container
             spacing={0}
